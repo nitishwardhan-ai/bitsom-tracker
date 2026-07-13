@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>BITSoM Campus Immersion 2026 — Live Tracker</title>
+<style>
+  :root{
+    --ink:#14213d; --paper:#f7f5ef; --card:#ffffff; --line:#e3ded2;
+    --ok:#1f7a4d; --warn:#b3541e; --full:#9b1c1c; --accent:#e8b100; --muted:#6b7280;
+  }
+  *{box-sizing:border-box;margin:0}
+  html{scroll-behavior:smooth}
+  body{font-family:Georgia,'Times New Roman',serif;background:var(--paper);color:var(--ink)}
+  .wrap{max-width:820px;margin:0 auto;padding:0 16px 48px}
+
+  /* ── Header ── */
+  header{background:var(--ink);color:#fff;padding:26px 16px 30px;text-align:center}
+  .eyebrow{font-family:Verdana,Arial,sans-serif;font-size:11px;letter-spacing:.24em;
+    text-transform:uppercase;color:var(--accent);margin-bottom:8px}
+  header h1{font-size:clamp(24px,5vw,34px);line-height:1.15;font-weight:700}
+  header .dates{font-family:Verdana,Arial,sans-serif;font-size:13px;color:#cfd4e0;margin-top:8px}
+  .liveTag{display:inline-flex;align-items:center;gap:7px;margin-top:14px;
+    font-family:Verdana,Arial,sans-serif;font-size:11px;letter-spacing:.08em;
+    background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.18);
+    padding:5px 12px;border-radius:99px;color:#e6e9f2}
+  .dot{width:8px;height:8px;border-radius:50%;background:#4ade80;animation:pulse 2s infinite}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.25}}
+
+  /* ── Counters ── */
+  .grid{display:grid;grid-template-columns:1fr;gap:14px;margin-top:-18px}
+  @media(min-width:600px){.grid{grid-template-columns:1fr 1fr}}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:14px;
+    padding:22px;position:relative;box-shadow:0 3px 14px rgba(20,33,61,.06)}
+  .card h2{font-family:Verdana,Arial,sans-serif;font-size:11.5px;letter-spacing:.14em;
+    text-transform:uppercase;color:var(--muted);font-weight:600;margin-bottom:12px}
+  .big{font-size:clamp(42px,8vw,58px);font-weight:700;line-height:1;font-variant-numeric:tabular-nums}
+  .big small{font-size:.36em;color:var(--muted);font-weight:400;font-family:Verdana,Arial,sans-serif}
+  .sub{font-family:Verdana,Arial,sans-serif;font-size:12.5px;color:var(--muted);margin-top:6px}
+  .bar{height:9px;background:var(--paper);border:1px solid var(--line);border-radius:99px;margin-top:14px;overflow:hidden}
+  .bar i{display:block;height:100%;width:0%;background:var(--ok);border-radius:99px;transition:width .8s ease,background .4s}
+  .pill{position:absolute;top:16px;right:16px;font-family:Verdana,Arial,sans-serif;
+    font-size:10.5px;font-weight:700;padding:4px 10px;border-radius:99px;letter-spacing:.05em}
+  .pill.ok{background:#e3f2e9;color:var(--ok)}
+  .pill.warn{background:#fbeadd;color:var(--warn)}
+  .pill.full{background:#fbe1e1;color:var(--full)}
+
+  /* ── CTA ── */
+  .cta{display:block;text-align:center;margin:18px auto 0;max-width:360px;
+    font-family:Verdana,Arial,sans-serif;font-weight:700;font-size:15px;
+    background:var(--accent);color:var(--ink);padding:14px 20px;border-radius:10px;
+    text-decoration:none;box-shadow:0 3px 10px rgba(232,177,0,.35)}
+  .cta.closed{background:#d1d5db;color:#6b7280;box-shadow:none;pointer-events:none}
+
+  /* ── Steps ── */
+  .steps{display:grid;grid-template-columns:1fr;gap:10px;margin-top:28px}
+  @media(min-width:600px){.steps{grid-template-columns:1fr 1fr 1fr}}
+  .step{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px 16px}
+  .step b{font-family:Verdana,Arial,sans-serif;font-size:12px;display:block;margin-bottom:4px}
+  .step span{font-family:Verdana,Arial,sans-serif;font-size:12px;color:var(--muted);line-height:1.5}
+
+  /* ── Sections ── */
+  section{margin-top:34px}
+  section > h3{font-size:20px;margin-bottom:14px;padding-bottom:8px;border-bottom:2px solid var(--accent);display:inline-block}
+  .facts{display:grid;grid-template-columns:1fr;gap:10px}
+  @media(min-width:600px){.facts{grid-template-columns:1fr 1fr}}
+  .fact{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:13px 16px;
+    font-family:Verdana,Arial,sans-serif;font-size:13px;line-height:1.55}
+  .fact b{display:block;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:3px}
+  .fact a{color:var(--ink)}
+
+  /* ── FAQ accordion ── */
+  details{background:var(--card);border:1px solid var(--line);border-radius:12px;
+    margin-bottom:8px;overflow:hidden}
+  summary{cursor:pointer;padding:14px 16px;font-family:Verdana,Arial,sans-serif;
+    font-size:13.5px;font-weight:700;list-style:none;display:flex;justify-content:space-between;align-items:center;gap:12px}
+  summary::-webkit-details-marker{display:none}
+  summary::after{content:'+';font-size:18px;color:var(--accent);font-weight:400;flex-shrink:0}
+  details[open] summary::after{content:'–'}
+  details .a{padding:0 16px 14px;font-family:Verdana,Arial,sans-serif;font-size:13px;
+    color:#374151;line-height:1.6}
+
+  footer{margin-top:36px;text-align:center;font-family:Verdana,Arial,sans-serif;
+    font-size:11.5px;color:var(--muted)}
+  @media (prefers-reduced-motion: reduce){.dot{animation:none}.bar i{transition:none}html{scroll-behavior:auto}}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="eyebrow">BITSoM × Masai · Live Tracker</div>
+  <h1>Campus Immersion 2026</h1>
+  <div class="dates">8–9 August · 2 Days, 1 Night · BITSoM Kalyan Campus, Mumbai</div>
+  <div class="liveTag"><span class="dot"></span> LIVE · updates every 20 seconds</div>
+</header>
+
+<div class="wrap">
+
+  <div class="grid">
+    <div class="card">
+      <span class="pill ok" id="seatPill">OPEN</span>
+      <h2>Campus Seats</h2>
+      <div class="big"><span id="seatsLeft">–</span> <small>of <span id="seatTotal">80</span> left</small></div>
+      <div class="sub"><span id="registered">–</span> students registered · first come, first served</div>
+      <div class="bar"><i id="seatBar"></i></div>
+    </div>
+    <div class="card">
+      <span class="pill ok" id="accomPill">OPEN</span>
+      <h2>Campus Accommodation</h2>
+      <div class="big"><span id="accomLeft">–</span> <small>of <span id="accomTotal">20</span> left</small></div>
+      <div class="sub"><span id="accomConfirmed">–</span> confirmed · counted only after payment verification</div>
+      <div class="bar"><i id="accomBar"></i></div>
+    </div>
+  </div>
+
+  <a class="cta" id="ctaBtn" href="https://forms.gle/hx11A94R5yT1DhRt5">Fill the Opt-in Form →</a>
+
+  <div class="steps">
+    <div class="step"><b>1 · Submit the form</b><span>Your campus seat is confirmed instantly if you're within the first 80. Check your email.</span></div>
+    <div class="step"><b>2 · Accommodation (optional)</b><span>Pay ₹4,000 & upload the screenshot. Limited to 20 students, confirmed after verification.</span></div>
+    <div class="step"><b>3 · Get confirmation mail</b><span>Seat confirmation arrives immediately; accommodation confirmation after payment is verified.</span></div>
+  </div>
+
+  <section>
+    <h3>Event Details</h3>
+    <div class="facts">
+      <div class="fact"><b>Dates & Timing</b>8th – 9th August 2026. Accommodation check-in from 7 AM on 8th; depart campus by 7 PM on 9th.</div>
+      <div class="fact"><b>Venue</b>BITSoM Kalyan Campus, Mumbai · <a href="https://maps.app.goo.gl/9ZgfZkDTu8KVfqpb6" target="_blank" rel="noopener">Open in Maps</a></div>
+      <div class="fact"><b>Fees</b>Immersion is free — breakfast, lunch & snacks provided. On-campus stay: ₹4,000 (includes food & accommodation).</div>
+      <div class="fact"><b>Academic Focus</b>Building AI Agents. Agenda shared one week prior. All participants receive a certificate.</div>
+      <div class="fact"><b>Coordinators on arrival</b>Primary: Nagapruthvik S – 8951882187<br>Secondary: Nitish – 7204673465</div>
+      <div class="fact"><b>What to carry</b>Laptop (mandatory), government ID, smart casuals & weather-appropriate clothing.</div>
+    </div>
+  </section>
+
+  <section>
+    <h3>FAQs</h3>
+    <details><summary>Can I bring my family members with me?</summary><div class="a">Family members are not allowed to participate in or attend the immersion sessions. They may accompany you for travel purposes up to the campus location.</div></details>
+    <details><summary>Is there any fee for attending?</summary><div class="a">No fee for the immersion itself — breakfast, lunch and snacks are provided by BITSoM. Students taking on-campus accommodation pay ₹4,000, which includes food and stay.</div></details>
+    <details><summary>How is accommodation confirmed?</summary><div class="a">Select "Yes" in the form, pay ₹4,000 via the payment link and upload your screenshot. Our team verifies payments daily — you'll receive a separate accommodation confirmation email once verified. Only 20 accommodation slots exist; check the counter above before paying.</div></details>
+    <details><summary>What if accommodation is full?</summary><div class="a">You can still attend the full immersion without a campus stay — meals on both days remain free. Any excess accommodation payments will be refunded.</div></details>
+    <details><summary>Will I get a certificate? What's the agenda?</summary><div class="a">Yes — all participants receive a campus immersion participation certificate. The detailed agenda will be communicated one week prior. Academic sessions focus on Building AI Agents.</div></details>
+    <details><summary>Is there a dress code?</summary><div class="a">No strict dress code. Smart casuals and comfortable footwear are encouraged; carry clothing appropriate for local weather.</div></details>
+    <details><summary>Is parking available on campus?</summary><div class="a">Limited parking may be available, first come, first served. 4-wheeler parking will not be available.</div></details>
+    <details><summary>What about my regular online classes?</summary><div class="a">No regular online classes are scheduled during the immersion dates.</div></details>
+    <details><summary>If I don't attend, will I get recordings?</summary><div class="a">No — sessions are in-person only and will not be recorded.</div></details>
+    <details><summary>Do I need to bring my laptop?</summary><div class="a">Yes, a laptop is mandatory.</div></details>
+  </section>
+
+  <footer>
+    Last updated: <span id="updatedAt">loading…</span> · refreshes automatically<br>
+    Queries? Raise a support ticket via the <a href="https://students.masaischool.com/" style="color:var(--muted)">LMS</a>. Please don't reply to confirmation emails.
+  </footer>
+</div>
+
+<script>
+  // ── SET THIS ONE LINE ─────────────────────────────────────────────
+  // Raw URL of stats.json in your GitHub repo (main branch), e.g.:
+  // https://raw.githubusercontent.com/YOUR_ORG/bitsom-tracker/main/stats.json
+  const STATS_URL = 'https://raw.githubusercontent.com/YOUR_ORG/bitsom-tracker/main/stats.json';
+  // ──────────────────────────────────────────────────────────────────
+
+  function fmt(iso){
+    try{ return new Date(iso).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',second:'2-digit'}); }
+    catch(e){ return '—'; }
+  }
+  function setPill(el,left,total){
+    el.classList.remove('ok','warn','full');
+    if(left<=0){el.textContent='FULL';el.classList.add('full');}
+    else if(left<=Math.ceil(total*0.15)){el.textContent='ALMOST FULL';el.classList.add('warn');}
+    else{el.textContent='OPEN';el.classList.add('ok');}
+  }
+  function setBar(el,used,total){
+    const pct=Math.min(100,Math.round(used/total*100));
+    el.style.width=pct+'%';
+    el.style.background=pct>=100?'var(--full)':pct>=85?'var(--warn)':'var(--ok)';
+  }
+  function render(s){
+    document.getElementById('seatsLeft').textContent=s.seatsLeft;
+    document.getElementById('seatTotal').textContent=s.totalSeats;
+    document.getElementById('registered').textContent=s.registered;
+    document.getElementById('accomLeft').textContent=s.accomLeft;
+    document.getElementById('accomTotal').textContent=s.accomSeats;
+    document.getElementById('accomConfirmed').textContent=s.accomConfirmed;
+    setPill(document.getElementById('seatPill'),s.seatsLeft,s.totalSeats);
+    setPill(document.getElementById('accomPill'),s.accomLeft,s.accomSeats);
+    setBar(document.getElementById('seatBar'),s.registered,s.totalSeats);
+    setBar(document.getElementById('accomBar'),s.accomConfirmed,s.accomSeats);
+    document.getElementById('updatedAt').textContent=fmt(s.updatedAt);
+
+    const cta=document.getElementById('ctaBtn');
+    if(s.seatsLeft<=0){cta.textContent='Registrations Closed — All 80 Seats Full';cta.classList.add('closed');}
+    else{cta.textContent='Fill the Opt-in Form → ('+s.seatsLeft+' seats left)';cta.classList.remove('closed');}
+  }
+  function refresh(){
+    // cache-buster query gives a fresh copy from GitHub's CDN on every poll
+    fetch(STATS_URL + '?t=' + Date.now())
+      .then(r => { if(!r.ok) throw new Error(r.status); return r.json(); })
+      .then(render)
+      .catch(function(){ document.getElementById('updatedAt').textContent='retrying…'; });
+  }
+  refresh();
+  setInterval(refresh,30000);
+</script>
+</body>
+</html>
