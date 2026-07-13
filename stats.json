@@ -1,9 +1,16 @@
 {
+  "eventName": "BITSoM Campus Immersion 2026",
+  "eventDates": "8th ? 9th August 2026 (2 Days, 1 Night)",
+  "venueName": "BITSoM Kalyan Campus, Mumbai",
+  "mapLink": "https://maps.app.goo.gl/9ZgfZkDTu8KVfqpb6",
+  "formLink": "https://forms.gle/hx11A94R5yT1DhRt5",
   "totalSeats": 80,
   "registered": 1,
   "seatsLeft": 79,
-  "accomSeats": 20,
-  "accomConfirmed": 0,
-  "accomLeft": 20,
-  "updatedAt": "2026-07-13T14:01:58.707Z"
+  "addonEnabled": true,
+  "addonLabel": "Accommodation",
+  "addonTotal": 20,
+  "addonConfirmed": 0,
+  "addonLeft": 20,
+  "updatedAt": "2026-07-13T14:06:58.929Z"
 }
