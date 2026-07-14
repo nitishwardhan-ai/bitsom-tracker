@@ -5,12 +5,12 @@
   "mapLink": "https://maps.app.goo.gl/9ZgfZkDTu8KVfqpb6",
   "formLink": "https://forms.gle/hx11A94R5yT1DhRt5",
   "totalSeats": 80,
-  "registered": 0,
-  "seatsLeft": 80,
+  "registered": 1,
+  "seatsLeft": 79,
   "addonEnabled": true,
   "addonLabel": "Accommodation",
   "addonTotal": 20,
   "addonConfirmed": 0,
   "addonLeft": 20,
-  "updatedAt": "2026-07-14T10:56:59.506Z"
+  "updatedAt": "2026-07-14T10:59:05.927Z"
 }
