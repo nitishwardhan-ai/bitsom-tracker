@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>BITSoM Campus Immersion 2026 — Live Tracker</title>
+<title>Live Registration Tracker</title>
 <style>
   :root{
     --ink:#14213d; --paper:#f7f5ef; --card:#ffffff; --line:#e3ded2;
@@ -14,11 +14,10 @@
   body{font-family:Georgia,'Times New Roman',serif;background:var(--paper);color:var(--ink)}
   .wrap{max-width:820px;margin:0 auto;padding:0 16px 48px}
 
-  /* ── Header ── */
   header{background:var(--ink);color:#fff;padding:26px 16px 30px;text-align:center}
   .eyebrow{font-family:Verdana,Arial,sans-serif;font-size:11px;letter-spacing:.24em;
     text-transform:uppercase;color:var(--accent);margin-bottom:8px}
-  header h1{font-size:clamp(24px,5vw,34px);line-height:1.15;font-weight:700}
+  header h1{font-size:clamp(22px,5vw,32px);line-height:1.15;font-weight:700}
   header .dates{font-family:Verdana,Arial,sans-serif;font-size:13px;color:#cfd4e0;margin-top:8px}
   .liveTag{display:inline-flex;align-items:center;gap:7px;margin-top:14px;
     font-family:Verdana,Arial,sans-serif;font-size:11px;letter-spacing:.08em;
@@ -27,9 +26,9 @@
   .dot{width:8px;height:8px;border-radius:50%;background:#4ade80;animation:pulse 2s infinite}
   @keyframes pulse{0%,100%{opacity:1}50%{opacity:.25}}
 
-  /* ── Counters ── */
   .grid{display:grid;grid-template-columns:1fr;gap:14px;margin-top:-18px}
-  @media(min-width:600px){.grid{grid-template-columns:1fr 1fr}}
+  .grid.two{grid-template-columns:1fr}
+  @media(min-width:600px){.grid.two{grid-template-columns:1fr 1fr}}
   .card{background:var(--card);border:1px solid var(--line);border-radius:14px;
     padding:22px;position:relative;box-shadow:0 3px 14px rgba(20,33,61,.06)}
   .card h2{font-family:Verdana,Arial,sans-serif;font-size:11.5px;letter-spacing:.14em;
@@ -45,21 +44,18 @@
   .pill.warn{background:#fbeadd;color:var(--warn)}
   .pill.full{background:#fbe1e1;color:var(--full)}
 
-  /* ── CTA ── */
   .cta{display:block;text-align:center;margin:18px auto 0;max-width:360px;
     font-family:Verdana,Arial,sans-serif;font-weight:700;font-size:15px;
     background:var(--accent);color:var(--ink);padding:14px 20px;border-radius:10px;
     text-decoration:none;box-shadow:0 3px 10px rgba(232,177,0,.35)}
   .cta.closed{background:#d1d5db;color:#6b7280;box-shadow:none;pointer-events:none}
 
-  /* ── Steps ── */
   .steps{display:grid;grid-template-columns:1fr;gap:10px;margin-top:28px}
   @media(min-width:600px){.steps{grid-template-columns:1fr 1fr 1fr}}
   .step{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px 16px}
   .step b{font-family:Verdana,Arial,sans-serif;font-size:12px;display:block;margin-bottom:4px}
   .step span{font-family:Verdana,Arial,sans-serif;font-size:12px;color:var(--muted);line-height:1.5}
 
-  /* ── Sections ── */
   section{margin-top:34px}
   section > h3{font-size:20px;margin-bottom:14px;padding-bottom:8px;border-bottom:2px solid var(--accent);display:inline-block}
   .facts{display:grid;grid-template-columns:1fr;gap:10px}
@@ -69,7 +65,6 @@
   .fact b{display:block;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:3px}
   .fact a{color:var(--ink)}
 
-  /* ── FAQ accordion ── */
   details{background:var(--card);border:1px solid var(--line);border-radius:12px;
     margin-bottom:8px;overflow:hidden}
   summary{cursor:pointer;padding:14px 16px;font-family:Verdana,Arial,sans-serif;
@@ -87,33 +82,50 @@
 </head>
 <body>
 
+<!--
+  ═══════════════════════════════════════════════════════════════════
+  REUSING THIS DASHBOARD FOR A NEW EVENT
+  ═══════════════════════════════════════════════════════════════════
+  Only ONE line needs editing below: STATS_URL, in the <script> at the
+  bottom. Everything else — event name, dates, venue, seat counts, the
+  CTA button, and the "how this works" text — is pulled live from
+  stats.json, which the Apps Script (Code.gs) publishes for you.
+
+  The two sections below marked "EVENT-SPECIFIC CONTENT" (Event Details
+  facts, and FAQs) are plain HTML, not driven by stats.json — edit their
+  text directly for each new event, since these change less often and a
+  copy-editable block is simpler than another data feed. Keep them in
+  sync with the FAQS array in Code.gs if you also want them in the email.
+  ═══════════════════════════════════════════════════════════════════
+-->
+
 <header>
-  <div class="eyebrow">BITSoM × Masai · Live Tracker</div>
-  <h1>Campus Immersion 2026</h1>
-  <div class="dates">8–9 August · 2 Days, 1 Night · BITSoM Kalyan Campus, Mumbai</div>
-  <div class="liveTag"><span class="dot"></span> LIVE · updates every 20 seconds</div>
+  <div class="eyebrow" id="eyebrow">Live Registration Tracker</div>
+  <h1 id="eventName">Loading event…</h1>
+  <div class="dates" id="eventDates"></div>
+  <div class="liveTag"><span class="dot"></span> LIVE · updates automatically</div>
 </header>
 
 <div class="wrap">
 
-  <div class="grid">
+  <div class="grid two" id="cardsGrid">
     <div class="card">
       <span class="pill ok" id="seatPill">OPEN</span>
-      <h2>Campus Seats</h2>
-      <div class="big"><span id="seatsLeft">–</span> <small>of <span id="seatTotal">80</span> left</small></div>
-      <div class="sub"><span id="registered">–</span> students registered · first come, first served</div>
+      <h2>Seats</h2>
+      <div class="big"><span id="seatsLeft">–</span> <small>of <span id="seatTotal">–</span> left</small></div>
+      <div class="sub"><span id="registered">–</span> registered · first come, first served</div>
       <div class="bar"><i id="seatBar"></i></div>
     </div>
-    <div class="card">
-      <span class="pill ok" id="accomPill">OPEN</span>
-      <h2>Campus Accommodation</h2>
-      <div class="big"><span id="accomLeft">–</span> <small>of <span id="accomTotal">20</span> left</small></div>
-      <div class="sub"><span id="accomConfirmed">–</span> confirmed · counted only after payment verification</div>
-      <div class="bar"><i id="accomBar"></i></div>
+    <div class="card" id="addonCard" style="display:none">
+      <span class="pill ok" id="addonPill">OPEN</span>
+      <h2 id="addonLabel">Add-on</h2>
+      <div class="big"><span id="addonLeft">–</span> <small>of <span id="addonTotal">–</span> left</small></div>
+      <div class="sub"><span id="addonConfirmed">–</span> confirmed</div>
+      <div class="bar"><i id="addonBar"></i></div>
     </div>
   </div>
 
-  <a class="cta" id="ctaBtn" href="https://forms.gle/hx11A94R5yT1DhRt5">Fill the Opt-in Form →</a>
+  <a class="cta" id="ctaBtn" href="#">Fill the Registration Form →</a>
 
   <div class="steps">
     <div class="step"><b>1 · Submit the form</b><span>Your campus seat is confirmed instantly if you're within the first 80. Check your email.</span></div>
@@ -121,12 +133,13 @@
     <div class="step"><b>3 · Get confirmation mail</b><span>Seat confirmation arrives immediately; accommodation confirmation after payment is verified.</span></div>
   </div>
 
+  <!-- ══════════ EVENT-SPECIFIC CONTENT — edit per event ══════════ -->
   <section>
     <h3>Event Details</h3>
     <div class="facts">
-      <div class="fact"><b>Dates & Timing</b>8th – 9th August 2026. Accommodation check-in from 7 AM on 8th; depart campus by 7 PM on 9th.</div>
+      <div class="fact"><b>Dates & Timing</b>8th – 9th August 2026. Accommodation check-in from 7 AM on 8th; depart by 7 PM on 9th.</div>
       <div class="fact"><b>Venue</b>BITSoM Kalyan Campus, Mumbai · <a href="https://maps.app.goo.gl/9ZgfZkDTu8KVfqpb6" target="_blank" rel="noopener">Open in Maps</a></div>
-      <div class="fact"><b>Fees</b>Immersion is free — breakfast, lunch & snacks provided. On-campus stay: ₹4,000 (includes food & accommodation).</div>
+      <div class="fact"><b>Fees</b>Event is free — meals provided. On-campus stay: ₹4,000 (includes food & accommodation).</div>
       <div class="fact"><b>Academic Focus</b>Building AI Agents. Agenda shared one week prior. All participants receive a certificate.</div>
       <div class="fact"><b>Coordinators on arrival</b>Primary: Nagapruthvik S – 8951882187<br>Secondary: Nitish – 7204673465</div>
       <div class="fact"><b>What to carry</b>Laptop (mandatory), government ID, smart casuals & weather-appropriate clothing.</div>
@@ -135,29 +148,26 @@
 
   <section>
     <h3>FAQs</h3>
-    <details><summary>Can I bring my family members with me?</summary><div class="a">Family members are not allowed to participate in or attend the immersion sessions. They may accompany you for travel purposes up to the campus location.</div></details>
-    <details><summary>Is there any fee for attending?</summary><div class="a">No fee for the immersion itself — breakfast, lunch and snacks are provided by BITSoM. Students taking on-campus accommodation pay ₹4,000, which includes food and stay.</div></details>
-    <details><summary>How is accommodation confirmed?</summary><div class="a">Select "Yes" in the form, pay ₹4,000 via the payment link and upload your screenshot. Our team verifies payments daily — you'll receive a separate accommodation confirmation email once verified. Only 20 accommodation slots exist; check the counter above before paying.</div></details>
-    <details><summary>What if accommodation is full?</summary><div class="a">You can still attend the full immersion without a campus stay — meals on both days remain free. Any excess accommodation payments will be refunded.</div></details>
-    <details><summary>Will I get a certificate? What's the agenda?</summary><div class="a">Yes — all participants receive a campus immersion participation certificate. The detailed agenda will be communicated one week prior. Academic sessions focus on Building AI Agents.</div></details>
-    <details><summary>Is there a dress code?</summary><div class="a">No strict dress code. Smart casuals and comfortable footwear are encouraged; carry clothing appropriate for local weather.</div></details>
-    <details><summary>Is parking available on campus?</summary><div class="a">Limited parking may be available, first come, first served. 4-wheeler parking will not be available.</div></details>
-    <details><summary>What about my regular online classes?</summary><div class="a">No regular online classes are scheduled during the immersion dates.</div></details>
-    <details><summary>If I don't attend, will I get recordings?</summary><div class="a">No — sessions are in-person only and will not be recorded.</div></details>
+    <details><summary>Can I bring my family members with me?</summary><div class="a">Family members are not allowed to participate in or attend the sessions. They may accompany you for travel purposes up to the venue.</div></details>
+    <details><summary>Is there any fee for attending?</summary><div class="a">No fee for the event itself — meals are provided. Students taking on-campus accommodation pay ₹4,000, which includes food and stay.</div></details>
+    <details><summary>How is accommodation confirmed?</summary><div class="a">Select "Yes" in the form, pay and upload your screenshot. Our team verifies payments daily — you'll receive a separate confirmation email once verified. Slots are limited; check the counter above before paying.</div></details>
+    <details><summary>What if accommodation is full?</summary><div class="a">You can still attend the full event without a stay. Any excess payments will be refunded.</div></details>
+    <details><summary>Will I get a certificate? What's the agenda?</summary><div class="a">Yes — all participants receive a participation certificate. The detailed agenda will be communicated one week prior.</div></details>
+    <details><summary>Is there a dress code?</summary><div class="a">No strict dress code. Smart casuals and comfortable footwear are encouraged.</div></details>
     <details><summary>Do I need to bring my laptop?</summary><div class="a">Yes, a laptop is mandatory.</div></details>
   </section>
+  <!-- ══════════ END EVENT-SPECIFIC CONTENT ══════════ -->
 
   <footer>
-    Last updated: <span id="updatedAt">loading…</span> · refreshes automatically<br>
-    Queries? Raise a support ticket via the <a href="https://students.masaischool.com/" style="color:var(--muted)">LMS</a>. Please don't reply to confirmation emails.
+    Last updated: <span id="updatedAt">loading…</span> · refreshes automatically
   </footer>
 </div>
 
 <script>
-  // ── SET THIS ONE LINE ─────────────────────────────────────────────
-  // Raw URL of stats.json in your GitHub repo (main branch), e.g.:
-  // https://raw.githubusercontent.com/YOUR_ORG/bitsom-tracker/main/stats.json
-  const STATS_URL = 'https://raw.githubusercontent.com/nitishwardhan-ai/bitsom-tracker/main/stats.json';;
+  // ── SET THIS ONE LINE PER EVENT ─────────────────────────────────────
+  // Raw URL of stats.json in the GitHub repo for THIS event, e.g.:
+  // https://raw.githubusercontent.com/YOUR_ORG/YOUR_REPO/main/stats.json
+  const STATS_URL = 'https://raw.githubusercontent.com/nitishwardhan-ai/bitsom-tracker/main/stats.json';
   // ──────────────────────────────────────────────────────────────────
 
   function fmt(iso){
@@ -176,31 +186,49 @@
     el.style.background=pct>=100?'var(--full)':pct>=85?'var(--warn)':'var(--ok)';
   }
   function render(s){
-    document.getElementById('seatsLeft').textContent=s.seatsLeft;
-    document.getElementById('seatTotal').textContent=s.totalSeats;
-    document.getElementById('registered').textContent=s.registered;
-    document.getElementById('accomLeft').textContent=s.accomLeft;
-    document.getElementById('accomTotal').textContent=s.accomSeats;
-    document.getElementById('accomConfirmed').textContent=s.accomConfirmed;
-    setPill(document.getElementById('seatPill'),s.seatsLeft,s.totalSeats);
-    setPill(document.getElementById('accomPill'),s.accomLeft,s.accomSeats);
-    setBar(document.getElementById('seatBar'),s.registered,s.totalSeats);
-    setBar(document.getElementById('accomBar'),s.accomConfirmed,s.accomSeats);
-    document.getElementById('updatedAt').textContent=fmt(s.updatedAt);
+    document.getElementById('eventName').textContent = s.eventName || 'Registration Tracker';
+    document.getElementById('eventDates').textContent =
+      (s.eventDates || '') + (s.venueName ? ' · ' + s.venueName : '');
 
-    const cta=document.getElementById('ctaBtn');
-    if(s.seatsLeft<=0){cta.textContent='Registrations Closed — All 80 Seats Full';cta.classList.add('closed');}
-    else{cta.textContent='Fill the Opt-in Form → ('+s.seatsLeft+' seats left)';cta.classList.remove('closed');}
+    document.getElementById('seatsLeft').textContent = s.seatsLeft;
+    document.getElementById('seatTotal').textContent = s.totalSeats;
+    document.getElementById('registered').textContent = s.registered;
+    setPill(document.getElementById('seatPill'), s.seatsLeft, s.totalSeats);
+    setBar(document.getElementById('seatBar'), s.registered, s.totalSeats);
+
+    const addonCard = document.getElementById('addonCard');
+    if (s.addonEnabled) {
+      addonCard.style.display = '';
+      document.getElementById('addonLabel').textContent = s.addonLabel || 'Add-on';
+      document.getElementById('addonLeft').textContent = s.addonLeft;
+      document.getElementById('addonTotal').textContent = s.addonTotal;
+      document.getElementById('addonConfirmed').textContent = s.addonConfirmed;
+      setPill(document.getElementById('addonPill'), s.addonLeft, s.addonTotal);
+      setBar(document.getElementById('addonBar'), s.addonConfirmed, s.addonTotal);
+    } else {
+      addonCard.style.display = 'none';
+    }
+
+    const cta = document.getElementById('ctaBtn');
+    if (s.formLink) cta.href = s.formLink;
+    if (s.seatsLeft <= 0) {
+      cta.textContent = 'Registrations Closed — All Seats Full';
+      cta.classList.add('closed');
+    } else {
+      cta.textContent = 'Fill the Registration Form → (' + s.seatsLeft + ' seats left)';
+      cta.classList.remove('closed');
+    }
+
+    document.getElementById('updatedAt').textContent = fmt(s.updatedAt);
   }
   function refresh(){
-    // cache-buster query gives a fresh copy from GitHub's CDN on every poll
     fetch(STATS_URL + '?t=' + Date.now())
       .then(r => { if(!r.ok) throw new Error(r.status); return r.json(); })
       .then(render)
-      .catch(function(){ document.getElementById('updatedAt').textContent='retrying…'; });
+      .catch(function(){ document.getElementById('updatedAt').textContent = 'retrying…'; });
   }
   refresh();
-  setInterval(refresh,30000);
+  setInterval(refresh, 30000);
 </script>
 </body>
 </html>
